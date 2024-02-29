@@ -1,49 +1,104 @@
 const mongoose=require('mongoose');
 const AddressSchema = new mongoose.Schema({
-  road: String,
-  state: String,
-  landmark: String,
-  pinCode: String,
-  district: String,
+  road: {
+    type: String,
+    // required: true,
+  },
+  state: {
+    type: String,
+    // required: true,
+  },
+  landmark: {
+    type: String,
+    // required: true,
+  },
+  pinCode: {
+    type: String,
+    required: true,
+  },
+  district: {
+    type: String,
+    required: true,
+  },
   location: {
     type: {
       type: String,
       enum: ['Point'],
+      required: true,
     },
     coordinates: {
       type: [Number],
+      required: true,
     },
   },
 });
 const ChargingStationSchema = new mongoose.Schema({
-  stationName: String,
-  address: AddressSchema,
-  openTime: String,
-  closeTime: String,
-  busyStatus: String,
-  facilities: [String],
+  chargingPoints: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'ChargingPoints',
+  }],
+  stationName: {
+    type: String,
+    required: true,
+  },
+  address: {
+    type: AddressSchema,
+    required: true,
+  },
+  openTime: {
+    type: Date,
+    // required: true,
+  },
+  closeTime: {
+    type: Date,
+    // reqired: true,
+  },
+  busyStatus: {
+    type: String,
+    // required: true,
+  },
+  upiPayment: {
+    type: Boolean,
+    // required: true,
+  },
 });
 const ChargingPointSchema = new mongoose.Schema({
-  chargingStationId: {
+  connectors: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'ChargingStation',
+    ref: 'Connector',
+  }],
+  isWorking: {
+    type: Boolean,
+    required: true,
   },
-  isWorking: Boolean,
 });
 const ConnectorSchema = new mongoose.Schema({
-  type: String,
-  wattage: String,
-  manufacturer: String,
-  chargingStationId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'ChargingStation',
+  type: {
+    type: String,
+    required: true,
   },
-  chargingPointId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'ChargingPoint',
+  wattage: {
+    type: String,
+    required: true,
   },
-  isWorking: Boolean,
-  isBusy: Boolean,
+  manufacturer: {
+    type: String,
+    required: true,
+  },
+  chargingPoint: {
+    type: ChargingPointSchema,
+  },
+  chargingStation: {
+    type: ChargingStationSchema,
+  },
+  isWorking: {
+    type: Boolean,
+    required: true,
+  },
+  isBusy: {
+    type: Boolean,
+    // required: true,
+  },
 });
 
 const Connector = mongoose.model('Connector', ConnectorSchema);

@@ -48,7 +48,7 @@ describe('Test with Database Connection', ()=>{
   before(async ()=>{
     mongoServer = await MongoMemoryServer.create();
     const URI = await mongoServer.getUri();
-    await establishConnection(URI);
+    await establishConnection('mongodb://localhost/EV2');
   });
 
   testDesign(ChargingStationTestParameters, true, assertOnConnection);
