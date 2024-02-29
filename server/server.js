@@ -9,6 +9,8 @@ const {
   createNewChargingStation,
   createNewChargingPoint,
   createNewConnector,
+  getConnectorsByPinCode,
+  getConnectorsByGeoLocation,
   connectToMongoDB,
   disconnectMongoDB} = require('../index');
 
@@ -29,6 +31,18 @@ app.use((req, res, next ) => {
   }
 });
 
+app.get('/Connector/pinCode', async (req, res) => {
+  const pinCode = req.query.pinCode;
+  const connectors = await getConnectorsByPinCode(pinCode);
+  res.status(200).json(connectors);
+});
+app.get('/Connector/GeoLocation', async (req, res) => {
+  const latitude = req.query.lat;
+  const longitude = req.query.lng;
+  const distance = req.query.distance | 100;
+  const Connectors = await getConnectorsByGeoLocation(latitude, longitude, distance);
+  res.status(200).json(Connectors);
+});
 app.post('/ChargingStation', async (req, res) => {
   const ack = await createNewChargingStation(req.body);
   res.json(ack);

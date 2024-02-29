@@ -44,12 +44,27 @@ const findStationIdFromChargingPointId = async (chargingPointId) => {
   return station.id;
 };
 
+const getConnectorsByPinCode = async (pinCode) => {
+  const connectors = await Connector.find({'chargingStation.address.pinCode': pinCode});
+  return connectors;
+};
+const getConnectorsByGeoLocation = async (lat, lng, radius) => {
+  const connectors = await Connector.find({'chargingStation.address.location': {$near: {
+    $geometry: {
+      type: 'Point',
+      coordinates: [lat, lng],
+    },
+    $maxDistance: radius}}});
+  return connectors;
+};
 
 module.exports = {
   createNewConnector,
   createNewChargingPoint,
   createNewChargingStation,
+  getConnectorsByPinCode,
   connectToMongoDB,
+  getConnectorsByGeoLocation,
   disconnectMongoDB,
 };
 
