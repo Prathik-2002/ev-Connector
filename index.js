@@ -9,8 +9,7 @@ const disconnectMongoDB = async (URI) => {
 };
 const createNewConnector = async (connectorData) => {
   const newConnector = await Connector.create(connectorData);
-  const chargingPoint = await ChargingPoint.findById(connectorData.chargingPointId);
-  const chargingStationId = chargingPoint.chargingStationId;
+  const chargingStationId = await findStationIdFromChargingPointId(connectorData.chargingPointId);
   await ChargingPoint.findByIdAndUpdate(connectorData.chargingPointId,
       {$push: {connectors: newConnector.id}});
   await updateDataOnConnector(newConnector.id, 'chargingStation', chargingStationId);
@@ -40,6 +39,11 @@ const updateDataOnConnector = async (connectorId, property, propertyId) => {
   const updatedConnector = await Connector.findByIdAndUpdate(connectorId, UpdateObj);
   return updatedConnector;
 };
+const findStationIdFromChargingPointId = async (chargingPointId) => {
+  const station = await ChargingStation.findOne({chargingPoints: {$in: chargingPointId}});
+  return station.id;
+};
+
 
 module.exports = {
   createNewConnector,

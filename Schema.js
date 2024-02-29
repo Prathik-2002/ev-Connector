@@ -18,10 +18,7 @@ const AddressSchema = new mongoose.Schema({
   },
 });
 const ChargingStationSchema = new mongoose.Schema({
-  chargingPoints: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'ChargingPoints',
-  }],
+  chargingPoints: [{type: mongoose.Schema.Types.ObjectId, ref: 'ChargingPoints'}],
   stationName: String,
   address: AddressSchema,
   openTime: String,
@@ -30,14 +27,7 @@ const ChargingStationSchema = new mongoose.Schema({
   upiPayment: Boolean,
 });
 const ChargingPointSchema = new mongoose.Schema({
-  chargingStationId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'ChargingStation',
-  },
-  connectors: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Connector',
-  }],
+  connectors: [{type: mongoose.Schema.Types.ObjectId, ref: 'Connector'}],
   isWorking: Boolean,
 });
 const ConnectorSchema = new mongoose.Schema({
