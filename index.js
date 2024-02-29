@@ -39,6 +39,7 @@ const updateDataOnConnector = async (connectorId, property, propertyId) => {
   const updatedConnector = await Connector.findByIdAndUpdate(connectorId, UpdateObj);
   return updatedConnector;
 };
+
 const findStationIdFromChargingPointId = async (chargingPointId) => {
   const station = await ChargingStation.findOne({chargingPoints: {$in: chargingPointId}});
   return station.id;
@@ -49,12 +50,13 @@ const getConnectorsByPinCode = async (pinCode) => {
   return connectors;
 };
 const getConnectorsByGeoLocation = async (lat, lng, radius) => {
-  const connectors = await Connector.find({'chargingStation.address.location': {$near: {
-    $geometry: {
-      type: 'Point',
-      coordinates: [lat, lng],
-    },
-    $maxDistance: radius}}});
+  const connectors = await Connector.find({'chargingStation.address.location': {
+    $near: {
+      $geometry: {
+        type: 'Point',
+        coordinates: [lat, lng],
+      },
+      $maxDistance: radius}}});
   return connectors;
 };
 
