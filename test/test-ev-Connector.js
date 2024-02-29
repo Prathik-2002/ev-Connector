@@ -22,6 +22,7 @@ const assertOnConnection = (response, testcase) => {
   expect(isSubset(response.body, testcase)).to.be.true;
   testcase['_id'] = response.body['_id'];
 };
+
 const assertOnNoConnection = (response) => {
   expect(response.status).equal(503);
   expect(response.header['content-type']).match(/text/);
@@ -53,7 +54,7 @@ describe('Test with Database Connection', ()=>{
 
   testDesign(ChargingStationTestParameters, true, assertOnConnection);
   testDesign(ChargingPointTestParameters, true, assertOnConnection);
-  // testDesign(ConnectorTestParameters, true, assertOnConnection);
+  testDesign(ConnectorTestParameters, true, assertOnConnection);
 
   after(async ()=>{
     await removeConnection();
@@ -61,6 +62,7 @@ describe('Test with Database Connection', ()=>{
     closeServer();
   });
 });
+
 describe('Test without Database Connection', ()=>{
   testDesign(ChargingStationTestParameters, false, assertOnNoConnection);
   testDesign(ChargingPointTestParameters, false, assertOnNoConnection);

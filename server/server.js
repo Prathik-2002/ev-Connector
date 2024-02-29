@@ -41,6 +41,7 @@ app.post('/Connector', async (req, res) => {
   const ack = await createNewConnector(req.body);
   res.json(ack);
 });
+establishConnection('mongodb://localhost/EV2');
 const server = app.listen(PORT);
 const closeServer = () => {
   server.close();

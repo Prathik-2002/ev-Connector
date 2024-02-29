@@ -8,30 +8,37 @@ const disconnectMongoDB = async (URI) => {
   await mongoose.disconnect();
 };
 const createNewConnector = async (connectorData) => {
-  const chargingStationData = await ChargingStation.findById(connectorData.chargingStationId);
-  const chargingPointData = await ChargingPoint.findById(connectorData.chargingPointId);
-  const chargoingPointId = connectorData.chargingPointId;
-  delete connectorData.chargingStationId;
-  delete connectorData.chargingPointId;
-  connectorData.chargingPoint = chargingPointData;
-  connectorData.chargingStation = chargingStationData;
   const newConnector = await Connector.create(connectorData);
-  await ChargingPoint
-      .findById(chargoingPointId)
-      .updateOne({}, {$push: {connectors: newConnector.id}});
-  return newConnector;
+  const chargingPoint = await ChargingPoint.findById(connectorData.chargingPointId);
+  const chargingStationId = chargingPoint.chargingStationId;
+  await ChargingPoint.findByIdAndUpdate(connectorData.chargingPointId,
+      {$push: {connectors: newConnector.id}});
+  await updateDataOnConnector(newConnector.id, 'chargingStation', chargingStationId);
+  await updateDataOnConnector(newConnector.id, 'chargingPoint', connectorData.chargingPointId);
+  const updatedConnector = await Connector.findById(newConnector.id);
+  return updatedConnector;
 };
 const createNewChargingPoint = async (chargingPointData) => {
   const newChargingPoint = await ChargingPoint.create(chargingPointData);
-  const newChargingPointId = newChargingPoint.id;
-  await ChargingStation
-      .findById(chargingPointData.chargingStationId)
-      .updateOne({}, {$push: {chargingPoints: newChargingPointId}});
+  await ChargingStation.findByIdAndUpdate(chargingPointData.chargingStationId,
+      {$push: {chargingPoints: newChargingPoint.id}});
   return newChargingPoint;
 };
 const createNewChargingStation = async (ChargingStationData) => {
   const newChargingStation = await ChargingStation.create(ChargingStationData);
   return newChargingStation;
+};
+const updateDataOnConnector = async (connectorId, property, propertyId) => {
+  let propertyData;
+  if (property == 'chargingStation') {
+    propertyData = await ChargingStation.findById(propertyId);
+  } if (property == 'chargingPoint') {
+    propertyData = await ChargingPoint.findById(propertyId);
+  }
+  const UpdateObj = {};
+  UpdateObj[property] = propertyData;
+  const updatedConnector = await Connector.findByIdAndUpdate(connectorId, UpdateObj);
+  return updatedConnector;
 };
 
 module.exports = {

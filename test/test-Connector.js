@@ -6,16 +6,16 @@ const ConnectorTestCase = [
     manufacturer: 'Jap',
     wattage: '123',
     isWorking: true,
-    chargingStationId: ChargingStationTestParameters.testcase[0]['id'],
-    chargingPointId: ChargingPointTestParameters.testcase[0]['id'],
+    chargingStationId: ChargingStationTestParameters.testcase[0]['_id'],
+    chargingPointId: ChargingPointTestParameters.testcase[0]['_id'],
   },
   {
     type: 'A2',
     manufacturer: 'Jap',
     wattage: '123',
     isWorking: true,
-    chargingStationId: ChargingStationTestParameters.testcase[0]['id'],
-    chargingPointId: ChargingPointTestParameters.testcase[0]['id'],
+    chargingStationId: ChargingStationTestParameters.testcase[0]['_id'],
+    chargingPointId: ChargingPointTestParameters.testcase[0]['_id'],
   },
 ];
 
