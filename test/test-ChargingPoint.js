@@ -1,6 +1,6 @@
+const request = require('supertest');
 const {expect} = require('chai');
 const {app} = require('../server/server');
-const request = require('supertest');
 const {getNewStation} = require('./test-ChargingStation');
 const payload = {
   isWorking: true,

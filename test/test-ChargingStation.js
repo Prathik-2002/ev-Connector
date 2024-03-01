@@ -1,6 +1,6 @@
 const {expect} = require('chai');
-const {app} = require('../server/server');
 const request = require('supertest');
+const {app} = require('../server/server');
 const payload = {
   stationName: 'ABB TEch',
   address: {
