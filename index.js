@@ -26,6 +26,7 @@ const createNewChargingPoint = async (chargingPointData) => {
   // push new chaarging point to charging station
   await ChargingStation.findByIdAndUpdate(chargingPointData.chargingStationId,
       {$push: {chargingPoints: newChargingPoint.id}});
+  await updateDataOfChargingStationOnAllConnectors(chargingPointData.chargingStationI);
   return newChargingPoint;
 };
 const createNewChargingStation = async (ChargingStationData) => {
@@ -50,7 +51,12 @@ const updateDataOfChargingPointOnAllConnectors = async (chargingPointId) => {
     await updateDataOnConnector(connector, 'chargingPoint', chargingPointId);
   });
 };
-
+const updateDataOfChargingStationOnAllConnectors = async (chargingStationId) => {
+  const AllConnectors = await Connector.find({chargingStation: chargingStationId}, {_id: 1});
+  AllConnectors.forEach(async (connector) => {
+    await updateDataOnConnector(connector.id, 'chargingStation', chargingStationId);
+  });
+};
 const findStationIdFromChargingPointId = async (chargingPointId) => {
   const station = await ChargingStation.findOne({chargingPoints: {$in: chargingPointId}});
   return station.id;

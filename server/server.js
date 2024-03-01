@@ -25,12 +25,6 @@ app.use('/Connector', connectorRoutes);
 app.use('/ChargingPoint', chargingPointRoutes);
 app.use('/ChargingStation', chargingStationRoutes);
 
-app.use((err, req, res, next) => {
-  res.status(500).json({
-    message: err.message,
-    code: err.code,
-  });
-});
 const setIsDatabaseConnected = (connection) => {
   isDatabaseConnected = connection;
 };
