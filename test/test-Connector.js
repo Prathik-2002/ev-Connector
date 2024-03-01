@@ -37,12 +37,12 @@ const testCreateConnector = (isSubset) => {
     const response = await getConnector({
       stationName: 'ABB TEch',
       address: {
-        road: 'BC-12',
-        pinCode: '567465',
         district: 'Jammu',
+        pinCode: '567465',
+        road: 'BC-12',
         location: {
-          type: 'Point',
           coordinates: [-21.99, 89.90],
+          type: 'Point',
         },
       },
     },

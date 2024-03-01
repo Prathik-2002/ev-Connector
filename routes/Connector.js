@@ -20,7 +20,8 @@ connectorRoutes.get('/GeoLocation', async (req, res) => {
 });
 connectorRoutes.post('/', async (req, res) => {
   const ack = await createNewConnector(req.body);
-  res.status(201).json(ack);
+  res.status(201)
+      .json(ack);
 });
 
 module.exports = connectorRoutes;

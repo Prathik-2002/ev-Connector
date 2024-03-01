@@ -24,12 +24,12 @@ const testCreateChargingPoint = (isSubset) => {
       stationName: 'ABB TEch',
       address: {
         road: 'BC-12',
-        pinCode: '567465',
         district: 'Jammu',
         location: {
           type: 'Point',
           coordinates: [-21.99, 89.90],
         },
+        pinCode: '567465',
       },
     }, payload);
     expect(response.chargingPoint.status).equal(201);
