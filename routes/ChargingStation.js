@@ -5,7 +5,7 @@ const {createNewChargingStation} = require('../index');
 
 chargingStationRoutes.post('/', async (req, res) => {
   const ack = await createNewChargingStation(req.body);
-  res.json(ack);
+  res.status(201).json(ack);
 });
 
 module.exports = chargingStationRoutes;

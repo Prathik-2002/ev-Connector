@@ -1,28 +1,65 @@
-const {ChargingPointTestParameters} = require('./test-ChargingPoint');
-const {ChargingStationTestParameters} = require('./test-ChargingStation');
-const ConnectorTestCase = [
-  {
-    type: 'A2',
-    manufacturer: 'Jap',
-    wattage: '123',
-    isWorking: true,
-    chargingStationId: ChargingStationTestParameters.testcase[0]['_id'],
-    chargingPointId: ChargingPointTestParameters.testcase[0]['_id'],
-  },
-  {
-    type: 'A2',
-    manufacturer: 'Jap',
-    wattage: '123',
-    isWorking: true,
-    chargingStationId: ChargingStationTestParameters.testcase[0]['_id'],
-    chargingPointId: ChargingPointTestParameters.testcase[0]['_id'],
-  },
-];
+const {expect} = require('chai');
+const {app} = require('../server/server');
+const request = require('supertest');
+const {getNewChargingPoint} = require('./test-ChargingPoint');
+const {ChargingStation, ChargingPoint} = require('../Schema');
 
-const ConnectorTestParameters = {
-  type: 'POST',
-  route: '/Connector',
-  testcase: ConnectorTestCase,
+const ConnectorPayload = {
+  type: 'A2',
+  manufacturer: 'Jap',
+  wattage: '123',
+  isWorking: true,
 };
 
-module.exports = {ConnectorTestParameters};
+
+const getConnector = async (stationPayload, chargingPointPayload, payload) => {
+  const ChargingingPointResponseWithStationId = await getNewChargingPoint(
+      stationPayload,
+      chargingPointPayload);
+  const ChargingPointId = ChargingingPointResponseWithStationId
+      .chargingPoint
+      .body['_id']
+      .toString();
+  payload['chargingPointId'] = ChargingPointId;
+  const response = await request(app)
+      .post('/Connector')
+      .send(payload)
+      .set('Accept', 'application/json');
+  const returnObj = {
+    chargingPointId: ChargingPointId,
+    stationId: ChargingingPointResponseWithStationId.stationId,
+    connectorResponse: response,
+  };
+  return returnObj;
+};
+const testCreateConnector = (isSubset) => {
+  it('should create a connector with status code 201', async ()=>{
+    const response = await getConnector({
+      stationName: 'ABB TEch',
+      address: {
+        road: 'BC-12',
+        pinCode: '567465',
+        district: 'Jammu',
+        location: {
+          type: 'Point',
+          coordinates: [-21.99, 89.90],
+        },
+      },
+    },
+    {
+      isWorking: true,
+      connectors: [],
+    },
+    ConnectorPayload);
+    const StationDetails = await ChargingStation.findById(response.stationId).lean();
+    const chargingPointDetails = await ChargingPoint.findById(response.chargingPointId).lean();
+    ConnectorPayload['chargingStation'] = StationDetails;
+    ConnectorPayload['chargingPoint'] = chargingPointDetails;
+    delete ConnectorPayload.chargingPointId;
+    expect(response.connectorResponse.headers['content-type']).match(/json/);
+    expect(response.connectorResponse.status).equal(201);
+    expect(isSubset(response.connectorResponse.body, ConnectorPayload)).to.be.true;
+  });
+};
+
+module.exports = {testCreateConnector};

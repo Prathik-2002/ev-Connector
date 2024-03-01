@@ -10,15 +10,19 @@ const disconnectMongoDB = async (URI) => {
 const createNewConnector = async (connectorData) => {
   const newConnector = await Connector.create(connectorData);
   const chargingStationId = await findStationIdFromChargingPointId(connectorData.chargingPointId);
+  // push the new connector to charging point
   await ChargingPoint.findByIdAndUpdate(connectorData.chargingPointId,
       {$push: {connectors: newConnector.id}});
+  // add ChargingStation and ChargingPoint details to Connector
   await updateDataOnConnector(newConnector.id, 'chargingStation', chargingStationId);
   await updateDataOnConnector(newConnector.id, 'chargingPoint', connectorData.chargingPointId);
+  // return updated connector
   const updatedConnector = await Connector.findById(newConnector.id);
   return updatedConnector;
 };
 const createNewChargingPoint = async (chargingPointData) => {
   const newChargingPoint = await ChargingPoint.create(chargingPointData);
+  // push new chaarging point to charging station
   await ChargingStation.findByIdAndUpdate(chargingPointData.chargingStationId,
       {$push: {chargingPoints: newChargingPoint.id}});
   return newChargingPoint;

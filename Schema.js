@@ -1,4 +1,5 @@
 const mongoose=require('mongoose');
+
 const AddressSchema = new mongoose.Schema({
   road: String,
   state: String,
@@ -43,5 +44,7 @@ const ConnectorSchema = new mongoose.Schema({
 const Connector = mongoose.model('Connector', ConnectorSchema);
 const ChargingPoint = mongoose.model('ChargingPoint', ChargingPointSchema);
 const ChargingStation = mongoose.model('ChargingStation', ChargingStationSchema);
+
 AddressSchema.index({location: '2dsphere'});
+
 module.exports = {Connector, ChargingPoint, ChargingStation};
