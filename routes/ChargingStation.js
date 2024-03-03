@@ -3,11 +3,8 @@ const {createNewChargingStation} = require('../index');
 const chargingStationRoutes = express.Router();
 
 chargingStationRoutes.post('/', async (req, res) => {
-  const ack = await createNewChargingStation(req.body);
-  res.status(201).json(ack);
-});
-chargingStationRoutes.get('/', async (req, res) => {
-  res.status(500).json({message: 'notavailable'});
+  const response = await createNewChargingStation(req.body);
+  res.status(201).json(response);
 });
 module.exports = chargingStationRoutes;
 

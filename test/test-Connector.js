@@ -3,7 +3,6 @@ const {app} = require('../server/server');
 const request = require('supertest');
 const {getNewChargingPoint} = require('./test-ChargingPoint');
 const {ChargingStation, ChargingPoint} = require('../Schema');
-
 const ConnectorPayload = {
   type: 'A2',
   manufacturer: 'Jap',
@@ -11,8 +10,7 @@ const ConnectorPayload = {
   isWorking: true,
 };
 
-
-const getConnector = async (stationPayload, chargingPointPayload, payload) => {
+const getNewConnector = async (stationPayload, chargingPointPayload, payload) => {
   const ChargingingPointResponseWithStationId = await getNewChargingPoint(
       stationPayload,
       chargingPointPayload);
@@ -25,17 +23,16 @@ const getConnector = async (stationPayload, chargingPointPayload, payload) => {
       .post('/Connector')
       .send(payload)
       .set('Accept', 'application/json');
-  const returnObj = {
+  return {
     chargingPointId: ChargingPointId,
     stationId: ChargingingPointResponseWithStationId.stationId,
     connectorResponse: response,
   };
-  return returnObj;
 };
 const testCreateConnector = (isSubset) => {
   it('should create a connector with status code 201', async ()=>{
-    const response = await getConnector({
-      stationName: 'ABB TEch',
+    const response = await getNewConnector({
+      stationName: 'Station 3',
       address: {
         district: 'Jammu',
         pinCode: '567465',

@@ -26,7 +26,7 @@ const createNewChargingPoint = async (chargingPointData) => {
   // push new chaarging point to charging station
   await ChargingStation.findByIdAndUpdate(chargingPointData.chargingStationId,
       {$push: {chargingPoints: newChargingPoint.id}});
-  await updateDataOfChargingStationOnAllConnectors(chargingPointData.chargingStationI);
+  await updateDataOfChargingStationOnAllConnectors(chargingPointData.chargingStationId);
   return newChargingPoint;
 };
 const createNewChargingStation = async (ChargingStationData) => {
@@ -52,7 +52,7 @@ const updateDataOfChargingPointOnAllConnectors = async (chargingPointId) => {
   });
 };
 const updateDataOfChargingStationOnAllConnectors = async (chargingStationId) => {
-  const AllConnectors = await Connector.find({chargingStation: chargingStationId}, {_id: 1});
+  const AllConnectors = await Connector.find({'chargingStation._id': chargingStationId}, {_id: 1});
   AllConnectors.forEach(async (connector) => {
     await updateDataOnConnector(connector.id, 'chargingStation', chargingStationId);
   });
@@ -62,18 +62,20 @@ const findStationIdFromChargingPointId = async (chargingPointId) => {
   return station.id;
 };
 
-const getConnectorsByPinCode = async (pinCode) => {
-  const connectors = await Connector.find({'chargingStation.address.pinCode': pinCode});
-  return connectors;
-};
-const getConnectorsByGeoLocation = async (lat, lng, radius) => {
-  const connectors = await Connector.find({'chargingStation.address.location': {
-    $near: {
-      $geometry: {
-        type: 'Point',
-        coordinates: [lat, lng],
-      },
-      $maxDistance: radius}}});
+const getConnectorsByGeoLocation = async (lat, lng, distance) => {
+  const connectors = await Connector.find({
+    'chargingStation.address.location': {
+      $near: {
+        $geometry: {
+          type: 'Point',
+          coordinates: [lat, lng],
+        },
+        $maxDistance: distance},
+    },
+    'isWorking': true,
+    'isBusy': false,
+    'chargingPoint.isWorking': true,
+  });
   return connectors;
 };
 
@@ -81,7 +83,6 @@ module.exports = {
   createNewConnector,
   createNewChargingPoint,
   createNewChargingStation,
-  getConnectorsByPinCode,
   connectToMongoDB,
   getConnectorsByGeoLocation,
   disconnectMongoDB,

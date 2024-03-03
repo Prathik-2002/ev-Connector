@@ -37,7 +37,6 @@ const removeConnection = async () => {
   disconnectMongoDB().then((value) => setIsDatabaseConnected(false));
 };
 
-
 const server = app.listen(PORT);
 const closeServer = () => {
   server.close();

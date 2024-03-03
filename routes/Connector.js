@@ -2,7 +2,6 @@ const express = require('express');
 const connectorRoutes = express.Router();
 const {
   createNewConnector,
-  getConnectorsByPinCode,
   getConnectorsByGeoLocation,
 } = require('../index');
 
@@ -11,18 +10,15 @@ connectorRoutes.post('/', async (req, res) => {
   res.status(201).json(ack);
 });
 
-connectorRoutes.get('/pinCode', async (req, res) => {
-  const pinCode = req.query.pinCode;
-  const connectors = await getConnectorsByPinCode(pinCode);
-  res.status(200).json(connectors);
-});
-connectorRoutes.get('/GeoLocation', async (req, res) => {
+
+connectorRoutes.get('/', async (req, res) => {
   const latitude = req.query.lat;
   const longitude = req.query.lng;
   const distance = req.query.distance;
   const Connectors = await getConnectorsByGeoLocation(latitude, longitude, distance);
   res.status(200).json(Connectors);
 });
+// connectorRoutes.patch('/')
 
 
 module.exports = connectorRoutes;

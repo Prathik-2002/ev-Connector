@@ -2,7 +2,7 @@ const {expect} = require('chai');
 const request = require('supertest');
 const {app} = require('../server/server');
 const payload = {
-  stationName: 'ABB TEch',
+  stationName: 'Station 1',
   address: {
     road: 'BC-12',
     pinCode: '567465',
