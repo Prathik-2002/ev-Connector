@@ -38,9 +38,9 @@ const populate = async () => {
   const response2 = await request(app).post('/ChargingStation').send({
     stationName: 'Rapper Cars',
     address: {
+      district: 'Udupi',
       road: 'BC-12',
       pinCode: '576111',
-      district: 'Udupi',
       location: {
         type: 'Point',
         coordinates: [10.2, 84.90],
