@@ -18,7 +18,6 @@ connectorRoutes.get('/', async (req, res) => {
   const Connectors = await getConnectorsByGeoLocation(latitude, longitude, distance);
   res.status(200).json(Connectors);
 });
-// connectorRoutes.patch('/')
 
 
 module.exports = connectorRoutes;
