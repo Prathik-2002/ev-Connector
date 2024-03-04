@@ -1,6 +1,13 @@
 const {Connector, ChargingPoint, ChargingStation} = require('./Schema');
 const mongoose = require('mongoose');
-
+const isvalidId = async (modelname, id) => {
+  const selectedModel = mongoose.model(modelname);
+  const isExisting = await selectedModel.findById(id);
+  if (isExisting == null) {
+    return false;
+  }
+  return true;
+};
 const connectToMongoDB = async (URI) => {
   await mongoose.connect(URI);
 };
@@ -16,7 +23,7 @@ const createNewConnector = async (connectorData) => {
   // add ChargingStation and ChargingPoint details to Connector
   await updateDataOfChargingPointOnAllConnectors(connectorData.chargingPointId);
   await updateDataOnConnector(newConnector.id, 'chargingStation', chargingStationId);
-  // return updated connector
+  // returns updated connector
   const updatedConnector = await Connector.findById(newConnector.id);
   return updatedConnector;
 };
@@ -62,7 +69,7 @@ const findStationIdFromChargingPointId = async (chargingPointId) => {
   return station.id;
 };
 
-const getConnectorsByGeoLocation = async (lat, lng, distance) => {
+const getConnectorsByGeoLocation = async (lat, lng, distance = 10000) => {
   const connectors = await Connector.find({
     'chargingStation.address.location': {
       $near: {
@@ -79,10 +86,16 @@ const getConnectorsByGeoLocation = async (lat, lng, distance) => {
   return connectors;
 };
 
+const updateConnector = async (id, isBusy) => {
+  const isUpdated = await Connector.findByIdAndUpdate(id, {isBusy: isBusy});
+  return isUpdated;
+};
 module.exports = {
   createNewConnector,
   createNewChargingPoint,
   createNewChargingStation,
+  updateConnector,
+  isvalidId,
   connectToMongoDB,
   getConnectorsByGeoLocation,
   disconnectMongoDB,

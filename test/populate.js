@@ -1,6 +1,3 @@
-const ChangingStationIds = [];
-const CPIds = [];
-const ConnectorIds = [];
 const request = require('supertest');
 const {app} = require('../server/server');
 
@@ -22,33 +19,30 @@ const createNewConnector = async (CPointId, wattage, type, isWorking, manufactur
   });
   return response.body['_id'];
 };
-const populate = async () => {
-  const response1 = await request(app).post('/ChargingStation').send({
-    stationName: 'Dexon',
+const createNewChargingStation = async (Name, road, pinCode, district, lat, lng) => {
+  const response = await request(app).post('/ChargingStation').send({
+    stationName: Name,
     address: {
-      road: 'BC-12',
-      pinCode: '576111',
-      district: 'Udupi',
+      road: road,
+      pinCode: pinCode,
+      district: district,
       location: {
         type: 'Point',
-        coordinates: [9.9, 89.90],
+        coordinates: [lat, lng],
       },
     },
   });
-  const response2 = await request(app).post('/ChargingStation').send({
-    stationName: 'Rapper Cars',
-    address: {
-      district: 'Udupi',
-      road: 'BC-12',
-      pinCode: '576111',
-      location: {
-        type: 'Point',
-        coordinates: [10.2, 84.90],
-      },
-    },
-  });
+  return response.body['_id'];
+};
+const populateHeavy = async () => {
+  const ChangingStationIds = [];
+  const CPIds = [];
+  const ConnectorIds = [];
 
-  ChangingStationIds.push(response1.body['_id'], response2.body['_id']);
+  ChangingStationIds
+      .push(await createNewChargingStation('Dexon', 'BC-12', '576111', 'Udupi', 9.9, 89.90));
+  ChangingStationIds
+      .push(await createNewChargingStation('Rapper Cars', 'BC-12', '576111', 'Udupi', 10.2, 84.90));
 
   CPIds.push(await createNewChargingPoint(ChangingStationIds[0], true));
   CPIds.push(await createNewChargingPoint(ChangingStationIds[0], true));
@@ -76,5 +70,12 @@ const populate = async () => {
     ConnectorIds: ConnectorIds,
   };
 };
+const populateLight = async () => {
+  const chargingStationId = await createNewChargingStation(
+      'Dexon', 'BC-12', '576111', 'Udupi', 9.9, 89.90);
+  const chargingPointId = await createNewChargingPoint(chargingStationId, true);
+  const connectorId = await createNewConnector(chargingPointId, '240', 'A2', true, 'SE2');
+  return connectorId;
+};
 
-module.exports = {populate};
+module.exports = {populateHeavy, populateLight};

@@ -3,6 +3,7 @@ const connectorRoutes = express.Router();
 const {
   createNewConnector,
   getConnectorsByGeoLocation,
+  updateConnector,
 } = require('../index');
 
 connectorRoutes.post('/', async (req, res) => {
@@ -18,7 +19,12 @@ connectorRoutes.get('/', async (req, res) => {
   const Connectors = await getConnectorsByGeoLocation(latitude, longitude, distance);
   res.status(200).json(Connectors);
 });
-// connectorRoutes.patch('/')
+connectorRoutes.patch('/:id', async (req, res) => {
+  const id = req.params.id;
+  const update = req.body;
+  await updateConnector(id, update.isBusy);
+  res.status(200).json({isBusy: update.isBusy});
+});
 
 
 module.exports = connectorRoutes;
