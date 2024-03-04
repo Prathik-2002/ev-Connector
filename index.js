@@ -87,8 +87,9 @@ const getConnectorsByGeoLocation = async (lat, lng, distance = 10000) => {
 };
 
 const updateConnector = async (id, isBusy) => {
-  const isUpdated = await Connector.findByIdAndUpdate(id, {isBusy: isBusy});
-  return isUpdated;
+  await Connector.findByIdAndUpdate(id, {$set: {'isBusy': isBusy}});
+  const updatedConnector = await Connector.findById(id);
+  return {isBusy: updatedConnector.isWorking};
 };
 module.exports = {
   createNewConnector,

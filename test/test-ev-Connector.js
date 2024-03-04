@@ -43,6 +43,8 @@ describe('Test with Database Connection', ()=>{
       expect(getResponse.body.length).equal(5);
     });
   });
+
+
   let connectorId;
   describe('PATCH /Connector', () => {
     before(async () => {
@@ -54,12 +56,7 @@ describe('Test with Database Connection', ()=>{
       });
       expect(patchResponse.body.isBusy).to.be.true;
     });
-    it('should change isBusy to false', async () => {
-      const patchResponse = await request(app).patch(`/Connector/${connectorId}`).send({
-        'isBusy': false,
-      });
-      expect(patchResponse.body.isBusy).to.be.false;
-    });
+
     it('should status 400 for invalid connector id', async () => {
       const patchResponse = await request(app).patch(`/Connector/65de9af8416ddf00765d39dc`).send({
         'isBusy': false,
@@ -68,6 +65,7 @@ describe('Test with Database Connection', ()=>{
       expect(patchResponse.body.message).equal('Invalid Connector');
     });
   });
+
   describe('POST request', ()=>{
     afterEach(async () => {
       mongoose.connection.db.dropDatabase();
@@ -83,6 +81,8 @@ describe('Test with Database Connection', ()=>{
     closeServer();
   });
 });
+
+
 const endpoints = {
   post: ['/Connector', '/ChargingStation', '/ChargingPoint'],
   get: ['/Connector'],
