@@ -24,6 +24,7 @@ connectorRoutes.get('/', async (req, res) => {
   const Connectors = await getConnectorsByGeoLocation(latitude, longitude, distance);
   res.status(200).json(Connectors);
 });
+
 connectorRoutes.patch('/:id', async (req, res) => {
   const id = req.params.id;
   const update = req.body;
