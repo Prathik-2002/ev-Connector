@@ -57,6 +57,15 @@ const testCreateConnector = (isSubset) => {
     expect(response.connectorResponse.status).equal(201);
     expect(isSubset(response.connectorResponse.body, ConnectorPayload)).to.be.true;
   });
+  it('should return 400 with message Invalid Charging Point for invalid id', async () => {
+    const ConnectorPayloadCopy = {...ConnectorPayload};
+    ConnectorPayloadCopy['chargingPointId'] = '65de9af8416ddf00765d39dc';
+    const response = await request(app)
+        .post('/Connector')
+        .send(ConnectorPayloadCopy);
+    expect(response.status).equal(400);
+    expect(response.body.message).equal('Invalid Charging Point');
+  });
 };
 
 module.exports = {testCreateConnector};

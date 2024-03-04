@@ -36,6 +36,15 @@ const testCreateChargingPoint = (isSubset) => {
     expect(response.chargingPoint.headers['content-type']).match(/json/);
     expect(isSubset(response.chargingPoint.body, payload)).to.be.true;
   });
+  it('should return 400 with message Invalid Charging Point for invalid id', async () => {
+    const PayloadCopy = {...payload};
+    PayloadCopy['chargingStationId'] = '65de9af8416ddf00765d39dc';
+    const response = await request(app)
+        .post('/ChargingPoint')
+        .send(PayloadCopy);
+    expect(response.status).equal(400);
+    expect(response.body.message).equal('Invalid Charging Station');
+  });
 };
 
 module.exports = {testCreateChargingPoint, getNewChargingPoint};

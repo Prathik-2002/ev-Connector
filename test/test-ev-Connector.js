@@ -60,6 +60,13 @@ describe('Test with Database Connection', ()=>{
       });
       expect(patchResponse.body.isBusy).to.be.false;
     });
+    it('should status 400 for invalid connector id', async () => {
+      const patchResponse = await request(app).patch(`/Connector/65de9af8416ddf00765d39dc`).send({
+        'isBusy': false,
+      });
+      expect(patchResponse.status).equal(400);
+      expect(patchResponse.body.message).equal('Invalid Connector');
+    });
   });
   describe('POST request', ()=>{
     afterEach(async () => {

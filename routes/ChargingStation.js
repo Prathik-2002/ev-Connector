@@ -6,5 +6,6 @@ chargingStationRoutes.post('/', async (req, res) => {
   const response = await createNewChargingStation(req.body);
   res.status(201).json(response);
 });
+
 module.exports = chargingStationRoutes;
 
