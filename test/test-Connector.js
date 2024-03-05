@@ -8,6 +8,7 @@ const ConnectorPayload = {
   manufacturer: 'Jap',
   wattage: '123',
   isWorking: true,
+  isBusy: false,
 };
 
 const getNewConnector = async (stationPayload, chargingPointPayload, payload) => {
@@ -30,7 +31,7 @@ const getNewConnector = async (stationPayload, chargingPointPayload, payload) =>
   };
 };
 const testCreateConnector = (isSubset) => {
-  it('should create a connector with status code 201', async ()=>{
+  it('should create a connector with status code 201 for valid input', async ()=>{
     const response = await getNewConnector({
       stationName: 'Station 3',
       address: {

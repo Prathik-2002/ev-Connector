@@ -36,7 +36,7 @@ const establishConnection = async (URI) => {
 const removeConnection = async () => {
   disconnectMongoDB().then((value) => setIsDatabaseConnected(false));
 };
-
+// establishConnection('mongodb://localhost/EV2');
 const server = app.listen(PORT);
 const closeServer = () => {
   server.close();

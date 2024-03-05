@@ -42,7 +42,7 @@ const populateHeavy = async () => {
   ChangingStationIds
       .push(await createNewChargingStation('Dexon', 'BC-12', '576111', 'Udupi', 9.9, 89.90));
   ChangingStationIds
-      .push(await createNewChargingStation('Rapper Cars', 'BC-12', '576111', 'Udupi', 10.2, 84.90));
+      .push(await createNewChargingStation('Rapper Cars', 'BC-12', '576101', 'Udupi', 10.2, 84.90));
 
   CPIds.push(await createNewChargingPoint(ChangingStationIds[0], true));
   CPIds.push(await createNewChargingPoint(ChangingStationIds[0], true));

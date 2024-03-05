@@ -27,10 +27,10 @@ connectorRoutes.get('/', async (req, res) => {
 
 connectorRoutes.patch('/:id', async (req, res) => {
   const id = req.params.id;
-  const update = req.body;
+  const update = req.query.isBusy;
   const isValidConnectorId = await isValidId('Connector', id);
   if (isValidConnectorId) {
-    const updatedIsBusy = await updateConnector(id, update.isBusy);
+    const updatedIsBusy = await updateConnector(id, {isBusy: update});
     res.status(202).json(updatedIsBusy);
   } else {
     res.status(400).json({message: 'Invalid Connector'});

@@ -8,6 +8,7 @@ const request = require('supertest');
 const {populateHeavy, populateLight} = require('./populate');
 const mongoose = require('mongoose');
 let mongoServer;
+let connectorId;
 const isSubset = (superObj, subObj) => {
   return Object.keys(subObj).every((ele) => {
     if (typeof subObj[ele] == 'object') {
@@ -44,17 +45,21 @@ describe('Test with Database Connection', ()=>{
     });
   });
 
-
-  let connectorId;
   describe('PATCH /Connector', () => {
     before(async () => {
       connectorId = await populateLight();
     });
     it('should change isBusy to true', async () => {
-      const patchResponse = await request(app).patch(`/Connector/${connectorId}`).send({
+      const patchResponse = await request(app).patch(`/Connector/${connectorId}`).query({
         'isBusy': true,
       });
       expect(patchResponse.body.isBusy).to.be.true;
+    });
+    it('should change isBusy to false', async () => {
+      const patchResponse = await request(app).patch(`/Connector/${connectorId}`).query({
+        isBusy: false,
+      });
+      expect(patchResponse.body.isBusy).to.be.false;
     });
 
     it('should status 400 for invalid connector id', async () => {

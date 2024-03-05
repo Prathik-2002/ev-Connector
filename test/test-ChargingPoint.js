@@ -19,7 +19,7 @@ const getNewChargingPoint = async (stationpayload, payload) => {
   return returnObj;
 };
 const testCreateChargingPoint = (isSubset) => {
-  it('should create a ChargingPoint with status code 201', async ()=>{
+  it('should create a ChargingPoint with status code 201 for valid input', async ()=>{
     const response = await getNewChargingPoint({
       stationName: 'Station 2',
       address: {

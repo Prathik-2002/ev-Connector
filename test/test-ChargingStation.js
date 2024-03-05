@@ -21,7 +21,7 @@ const getNewStation = async (payload) => {
   return response;
 };
 const testCreateChargingStation = (isSubset) => {
-  it('should create a station with status code 201', async ()=>{
+  it('should create a station with status code 201 for valid input', async ()=>{
     const response = await getNewStation(payload);
     expect(response.headers['content-type']).match(/json/);
     expect(response.status).equal(201);

@@ -27,7 +27,6 @@ const createNewConnector = async (connectorData) => {
   const updatedConnector = await Connector.findById(newConnector.id);
   return updatedConnector;
 };
-
 const createNewChargingPoint = async (chargingPointData) => {
   const newChargingPoint = await ChargingPoint.create(chargingPointData);
   // push new chaarging point to charging station
@@ -68,7 +67,6 @@ const findStationIdFromChargingPointId = async (chargingPointId) => {
   const station = await ChargingStation.findOne({chargingPoints: {$in: chargingPointId}});
   return station.id;
 };
-
 const getConnectorsByGeoLocation = async (lat, lng, distance = 10000) => {
   const connectors = await Connector.find({
     'chargingStation.address.location': {
@@ -85,11 +83,10 @@ const getConnectorsByGeoLocation = async (lat, lng, distance = 10000) => {
   });
   return connectors;
 };
-
 const updateConnector = async (id, isBusy) => {
-  await Connector.findByIdAndUpdate(id, {$set: {'isBusy': isBusy}});
+  await Connector.findByIdAndUpdate(id, {$set: isBusy});
   const updatedConnector = await Connector.findById(id);
-  return {isBusy: updatedConnector.isWorking};
+  return {isBusy: updatedConnector.isBusy};
 };
 module.exports = {
   createNewConnector,
