@@ -3,6 +3,7 @@ const {app} = require('../server/server');
 const request = require('supertest');
 const {getNewChargingPoint} = require('./test-ChargingPoint');
 const {ChargingStation, ChargingPoint} = require('../Schema');
+const {populateLight} = require('./populate');
 const ConnectorPayload = {
   type: 'A2',
   manufacturer: 'Jap',
@@ -68,5 +69,17 @@ const testCreateConnector = (isSubset) => {
     expect(response.body.message).equal('Invalid Charging Point');
   });
 };
-
-module.exports = {testCreateConnector};
+const testGetConnectorById = (isSubset) => {
+  it('should return the connector details with status code 200', async ()=>{
+    const connector = await populateLight();
+    const getConnectorResponse = await request(app).get(`/Connector/${connector['_id']}`);
+    expect(isSubset(getConnectorResponse.body, connector)).to.be.true;
+    expect(getConnectorResponse.status).equal(200);
+  });
+  it('should return status 404 for invalid Id', async () => {
+    const getConnectorResponse = await request(app).get('/Connector/65e6b0c65c719e67feeecdee');
+    expect(getConnectorResponse.status).equal(404);
+    expect(getConnectorResponse.body.message).equal('Invalid Connector');
+  });
+};
+module.exports = {testCreateConnector, testGetConnectorById};

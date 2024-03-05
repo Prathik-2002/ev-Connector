@@ -17,7 +17,7 @@ const createNewConnector = async (CPointId, wattage, type, isWorking, manufactur
     chargingPointId: CPointId,
     manufacturer: manufacturer,
   });
-  return response.body['_id'];
+  return response.body;
 };
 const createNewChargingStation = async (Name, road, pinCode, district, lat, lng) => {
   const response = await request(app).post('/ChargingStation').send({
@@ -49,21 +49,21 @@ const populateHeavy = async () => {
   CPIds.push(await createNewChargingPoint(ChangingStationIds[0], false));
   CPIds.push(await createNewChargingPoint(ChangingStationIds[1], true));
 
-  ConnectorIds.push(await createNewConnector(CPIds[0], '120', 'A2', true, 'SE2'));
-  ConnectorIds.push(await createNewConnector(CPIds[0], '120', 'A3', true, 'SE2'));
-  ConnectorIds.push(await createNewConnector(CPIds[0], '240', 'A2', true, 'SE2'));
-  ConnectorIds.push(await createNewConnector(CPIds[1], '240', 'A2', true, 'SE2'));
-  ConnectorIds.push(await createNewConnector(CPIds[1], '240', 'A1', false, 'GH'));
-  ConnectorIds.push(await createNewConnector(CPIds[1], '120', 'A2', true, 'SE2'));
-  ConnectorIds.push(await createNewConnector(CPIds[2], '360', 'A3', true, 'SE2'));
-  ConnectorIds.push(await createNewConnector(CPIds[2], '360', 'A3', true, 'GH'));
-  ConnectorIds.push(await createNewConnector(CPIds[2], '120', 'A2', false, 'GH'));
-  ConnectorIds.push(await createNewConnector(CPIds[3], '240', 'A3', true, 'SE2'));
-  ConnectorIds.push(await createNewConnector(CPIds[3], '120', 'A2', true, 'SE2'));
-  ConnectorIds.push(await createNewConnector(CPIds[3], '240', 'A2', true, 'SE2'));
+  ConnectorIds.push((await createNewConnector(CPIds[0], '120', 'A2', true, 'SE2'))['_id']);
+  ConnectorIds.push((await createNewConnector(CPIds[0], '240', 'A1', true, 'SE2'))['_id']);
+  ConnectorIds.push((await createNewConnector(CPIds[1], '240', 'A2', true, 'SE2'))['_id']);
+  ConnectorIds.push((await createNewConnector(CPIds[1], '240', 'A1', false, 'GH'))['_id']);
+  ConnectorIds.push((await createNewConnector(CPIds[1], '120', 'A2', true, 'SE2'))['_id']);
+  ConnectorIds.push((await createNewConnector(CPIds[0], '120', 'A3', true, 'SE2'))['_id']);
+  ConnectorIds.push((await createNewConnector(CPIds[2], '360', 'A3', true, 'SE2'))['_id']);
+  ConnectorIds.push((await createNewConnector(CPIds[2], '360', 'A3', true, 'GH'))['_id']);
+  ConnectorIds.push((await createNewConnector(CPIds[2], '120', 'A2', false, 'GH'))['_id']);
+  ConnectorIds.push((await createNewConnector(CPIds[3], '240', 'A3', true, 'SE2'))['_id']);
+  ConnectorIds.push((await createNewConnector(CPIds[3], '120', 'A2', true, 'SE2'))['_id']);
+  ConnectorIds.push((await createNewConnector(CPIds[3], '240', 'A2', true, 'SE2'))['_id']);
   CPIds.push(await createNewChargingPoint(ChangingStationIds[1], true));
-  ConnectorIds.push(await createNewConnector(CPIds[4], '360', 'A1', true, 'SE2'));
-  ConnectorIds.push(await createNewConnector(CPIds[4], '360', 'A1', true, 'SE2'));
+  ConnectorIds.push((await createNewConnector(CPIds[4], '360', 'A1', true, 'SE2'))['_id']);
+  ConnectorIds.push((await createNewConnector(CPIds[4], '360', 'A1', true, 'SE2'))['_id']);
   return {
     ChargingPointIds: CPIds,
     ChangingStationIds: ChangingStationIds,
@@ -74,8 +74,8 @@ const populateLight = async () => {
   const chargingStationId = await createNewChargingStation(
       'Dexon', 'BC-12', '576111', 'Udupi', 9.9, 89.90);
   const chargingPointId = await createNewChargingPoint(chargingStationId, true);
-  const connectorId = await createNewConnector(chargingPointId, '240', 'A2', true, 'SE2');
-  return connectorId;
+  const connector = await createNewConnector(chargingPointId, '240', 'A2', true, 'SE2');
+  return connector;
 };
 
 module.exports = {populateHeavy, populateLight};

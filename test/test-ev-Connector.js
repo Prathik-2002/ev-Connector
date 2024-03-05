@@ -2,13 +2,13 @@ const {expect} = require('chai');
 const {app, establishConnection, removeConnection, closeServer} = require('../server/server');
 const {testCreateChargingStation} = require('./test-ChargingStation');
 const {testCreateChargingPoint} = require('./test-ChargingPoint');
-const {testCreateConnector} = require('./test-Connector');
+const {testCreateConnector, testGetConnectorById} = require('./test-Connector');
 const {MongoMemoryServer} = require('mongodb-memory-server');
 const request = require('supertest');
 const {populateHeavy, populateLight} = require('./populate');
 const mongoose = require('mongoose');
 let mongoServer;
-let connectorId;
+let connector;
 const isSubset = (superObj, subObj) => {
   return Object.keys(subObj).every((ele) => {
     if (typeof subObj[ele] == 'object') {
@@ -25,38 +25,38 @@ describe('Test with Database Connection', ()=>{
     establishConnection(URI);
   });
   describe('GET /Connector', async () => {
-    it(`should return 5 connectors for lat: 9.9, lng: 89.9`, async () => {
+    it(`should return 3 connectors for lat: 9.9, lng: 89.9 and type "A2"`, async () => {
       const Ids = await populateHeavy();
       const ConnectorIds = Ids.ConnectorIds;
       const currentLocation = {lat: 9.9, lng: 89.90};
       const getResponse = await request(app)
           .get('/Connector')
-          .query(currentLocation);
+          .query(currentLocation).query({type: 'A2'});
       const expectedIds = [
         ConnectorIds[0],
-        ConnectorIds[1],
         ConnectorIds[2],
-        ConnectorIds[3],
-        ConnectorIds[5]];
+        ConnectorIds[4]];
       getResponse.body.forEach((connector) => {
         expect(expectedIds.includes(connector['_id'])).to.be.true;
       });
-      expect(getResponse.body.length).equal(5);
+      expect(getResponse.body.length).equal(expectedIds.length);
     });
   });
-
+  describe('GET /Connector/:id', ()=> {
+    testGetConnectorById(isSubset);
+  });
   describe('PATCH /Connector', () => {
     before(async () => {
-      connectorId = await populateLight();
+      connector = await populateLight();
     });
     it('should change isBusy to true', async () => {
-      const patchResponse = await request(app).patch(`/Connector/${connectorId}`).query({
+      const patchResponse = await request(app).patch(`/Connector/${connector['_id']}`).query({
         'isBusy': true,
       });
       expect(patchResponse.body.isBusy).to.be.true;
     });
     it('should change isBusy to false', async () => {
-      const patchResponse = await request(app).patch(`/Connector/${connectorId}`).query({
+      const patchResponse = await request(app).patch(`/Connector/${connector['_id']}`).query({
         isBusy: false,
       });
       expect(patchResponse.body.isBusy).to.be.false;

@@ -22,7 +22,7 @@ const createNewConnector = async (connectorData) => {
       {$push: {connectors: newConnector.id}});
   // add ChargingStation and ChargingPoint details to Connector
   await updateDataOfChargingPointOnAllConnectors(connectorData.chargingPointId);
-  await updateDataOnConnector(newConnector.id, 'chargingStation', chargingStationId);
+  await updateDataOnConnector(newConnector.id, 'ChargingStation', chargingStationId);
   // returns updated connector
   const updatedConnector = await Connector.findById(newConnector.id);
   return updatedConnector;
@@ -40,34 +40,31 @@ const createNewChargingStation = async (ChargingStationData) => {
   return newChargingStation;
 };
 const updateDataOnConnector = async (connectorId, property, propertyId) => {
-  let propertyData;
-  if (property == 'chargingStation') {
-    propertyData = await ChargingStation.findById(propertyId);
-  } if (property == 'chargingPoint') {
-    propertyData = await ChargingPoint.findById(propertyId);
-  }
+  const selectedModel = mongoose.model(property);
+  const propertyData = await selectedModel.findById(propertyId);
+  const propertyNameInConnector = property[0].toLowerCase() + property.slice(1);
   const UpdateObj = {};
-  UpdateObj[property] = propertyData;
+  UpdateObj[propertyNameInConnector] = propertyData;
   const updatedConnector = await Connector.findByIdAndUpdate(connectorId, UpdateObj);
   return updatedConnector;
 };
 const updateDataOfChargingPointOnAllConnectors = async (chargingPointId) => {
   const chargingPoint = await ChargingPoint.findById(chargingPointId);
   chargingPoint.connectors.forEach(async (connector) => {
-    await updateDataOnConnector(connector, 'chargingPoint', chargingPointId);
+    await updateDataOnConnector(connector, 'ChargingPoint', chargingPointId);
   });
 };
 const updateDataOfChargingStationOnAllConnectors = async (chargingStationId) => {
-  const AllConnectors = await Connector.find({'chargingStation._id': chargingStationId}, {_id: 1});
+  const AllConnectors = await Connector.find({'chargingStation._id': chargingStationId});
   AllConnectors.forEach(async (connector) => {
-    await updateDataOnConnector(connector.id, 'chargingStation', chargingStationId);
+    await updateDataOnConnector(connector.id, 'ChargingStation', chargingStationId);
   });
 };
 const findStationIdFromChargingPointId = async (chargingPointId) => {
   const station = await ChargingStation.findOne({chargingPoints: {$in: chargingPointId}});
   return station.id;
 };
-const getConnectorsByGeoLocation = async (lat, lng, distance = 10000) => {
+const getConnectorsByGeoLocation = async (lat, lng, type, distance = 10000) => {
   const connectors = await Connector.find({
     'chargingStation.address.location': {
       $near: {
@@ -80,8 +77,13 @@ const getConnectorsByGeoLocation = async (lat, lng, distance = 10000) => {
     'isWorking': true,
     'isBusy': false,
     'chargingPoint.isWorking': true,
+    'type': type,
   });
   return connectors;
+};
+const getConnectorById = async (connectorId) => {
+  const connector = await Connector.findById(connectorId).lean();
+  return connector;
 };
 const updateConnector = async (id, isBusy) => {
   await Connector.findByIdAndUpdate(id, {$set: isBusy});
@@ -93,6 +95,7 @@ module.exports = {
   createNewChargingPoint,
   createNewChargingStation,
   updateConnector,
+  getConnectorById,
   isValidId,
   connectToMongoDB,
   getConnectorsByGeoLocation,
