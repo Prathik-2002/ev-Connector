@@ -31,10 +31,10 @@ const setIsDatabaseConnected = (connection) => {
 
 const establishConnection = async (URI) => {
   connectToMongoDB(URI)
-      .then((value) => setIsDatabaseConnected(true));
+      .then(() => setIsDatabaseConnected(true));
 };
 const removeConnection = async () => {
-  disconnectMongoDB().then((value) => setIsDatabaseConnected(false));
+  disconnectMongoDB().then(() => setIsDatabaseConnected(false));
 };
 const server = app.listen(PORT);
 const closeServer = () => {
