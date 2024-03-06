@@ -43,23 +43,35 @@ describe('Test with Database Connection', ()=>{
       expect(getResponse.body.length).equal(expectedIds.length);
     });
   });
+  const InvalidTestCase = {batteryCapacity: 120, SoC: 50, connectorPower: 240};
   describe('GET /Connector/:id', ()=> {
     describe('with 404 status from estimate server', () => {
       before(()=>{
         nock('http://localhost:5050')
-            .get('/ChargingTime').query({batteryCapacity: 120, SoC: -10, connectorPower: 240})
+            .get('/ChargingTime').query({
+              batteryCapacity: InvalidTestCase.batteryCapacity,
+              SoC: InvalidTestCase.SoC,
+              connectorPower: InvalidTestCase.connectorPower})
             .reply(404);
       });
-      testGetConnectorById(120, -10, 206, 'Not Available', isSubset);
+      testGetConnectorById(InvalidTestCase.batteryCapacity,
+          InvalidTestCase.SoC,
+          206,
+          'Not Available',
+          isSubset);
     });
-    describe('With 200 status from estimate server', () => {
-      before(()=>{
-        nock('http://localhost:5050')
-            .get('/ChargingTime').query({batteryCapacity: 120, SoC: 50, connectorPower: 240})
-            .reply(200, {estimatedChargingTime: 15});
-      });
-      testGetConnectorById(120, 50, 200, 15, isSubset);
+  });
+  const ValidTestCase = {batteryCapacity: 120, SoC: 50, connectorPower: 240};
+  describe('With 200 status from estimate server', () => {
+    before(()=>{
+      nock('http://localhost:5050')
+          .get('/ChargingTime').query({
+            batteryCapacity: ValidTestCase.batteryCapacity,
+            SoC: ValidTestCase.SoC,
+            connectorPower: ValidTestCase.connectorPower})
+          .reply(200, {estimatedChargingTime: 15});
     });
+    testGetConnectorById(ValidTestCase.batteryCapacity, ValidTestCase.SoC, 200, 15, isSubset);
   });
   describe('PATCH /Connector', () => {
     before(async () => {
