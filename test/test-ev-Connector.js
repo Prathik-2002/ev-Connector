@@ -1,12 +1,13 @@
 const {expect} = require('chai');
+const request = require('supertest');
+const mongoose = require('mongoose');
+const {MongoMemoryServer} = require('mongodb-memory-server');
+const nock = require('nock');
 const {app, establishConnection, removeConnection, closeServer} = require('../server/server');
 const {testCreateChargingStation} = require('./test-ChargingStation');
 const {testCreateChargingPoint} = require('./test-ChargingPoint');
 const {testCreateConnector, testGetConnectorById} = require('./test-Connector');
-const {MongoMemoryServer} = require('mongodb-memory-server');
-const request = require('supertest');
 const {populateHeavy, populateLight} = require('./populate');
-const mongoose = require('mongoose');
 let mongoServer;
 let connector;
 const isSubset = (superObj, subObj) => {
@@ -43,7 +44,22 @@ describe('Test with Database Connection', ()=>{
     });
   });
   describe('GET /Connector/:id', ()=> {
-    testGetConnectorById(isSubset);
+    describe('with 404 status from estimate server', () => {
+      before(()=>{
+        nock('http://localhost:5050')
+            .get('/ChargingTime').query({batteryCapacity: 120, SoC: -10, connectorPower: 240})
+            .reply(404);
+      });
+      testGetConnectorById(120, -10, 206, 'Not Available', isSubset);
+    });
+    describe('With 200 status from estimate server', () => {
+      before(()=>{
+        nock('http://localhost:5050')
+            .get('/ChargingTime').query({batteryCapacity: 120, SoC: 50, connectorPower: 240})
+            .reply(200, {estimatedChargingTime: 15});
+      });
+      testGetConnectorById(120, 50, 200, 15, isSubset);
+    });
   });
   describe('PATCH /Connector', () => {
     before(async () => {
@@ -70,7 +86,6 @@ describe('Test with Database Connection', ()=>{
       expect(patchResponse.body.message).equal('Invalid Connector');
     });
   });
-
   describe('POST request', ()=>{
     afterEach(async () => {
       mongoose.connection.db.dropDatabase();
@@ -79,7 +94,6 @@ describe('Test with Database Connection', ()=>{
     testCreateChargingStation(isSubset);
     testCreateConnector(isSubset);
   });
-
   after(async ()=>{
     await removeConnection();
     await mongoServer.stop();
@@ -90,7 +104,7 @@ describe('Test with Database Connection', ()=>{
 
 const endpoints = {
   post: ['/Connector', '/ChargingStation', '/ChargingPoint'],
-  get: ['/Connector'],
+  get: ['/Connector', '/Connector/65e6b0c65c719e67feeecdee'],
 };
 describe('Test without Database Connection', () => {
   endpoints.post.forEach((postendpoint) => {

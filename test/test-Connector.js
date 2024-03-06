@@ -69,12 +69,14 @@ const testCreateConnector = (isSubset) => {
     expect(response.body.message).equal('Invalid Charging Point');
   });
 };
-const testGetConnectorById = (isSubset) => {
-  it('should return the connector details with status code 200', async ()=>{
+const testGetConnectorById = (BCapacity, SoC, status, estimateData, isSubset) => {
+  it(`should return the connector details with status code ${status}`, async ()=>{
     const connector = await populateLight();
-    const getConnectorResponse = await request(app).get(`/Connector/${connector['_id']}`);
+    const getConnectorResponse = await request(app)
+        .get(`/Connector/${connector['_id']}?batteryCapacity=${BCapacity}&SoC=${SoC}`);
     expect(isSubset(getConnectorResponse.body, connector)).to.be.true;
-    expect(getConnectorResponse.status).equal(200);
+    expect(getConnectorResponse.status).equal(status);
+    expect(getConnectorResponse.body.estimatedChargingTime).equal(estimateData);
   });
   it('should return status 404 for invalid Id', async () => {
     const getConnectorResponse = await request(app).get('/Connector/65e6b0c65c719e67feeecdee');

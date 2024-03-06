@@ -1,5 +1,6 @@
 const express = require('express');
 const connectorRoutes = express.Router();
+const {estimateChargingTime} = require('../server/estimate');
 const {isValidId} = require('../index');
 const {
   createNewConnector,
@@ -19,10 +20,16 @@ connectorRoutes.post('/', async (req, res) => {
 });
 
 connectorRoutes.get('/:id', async (req, res) => {
+  const batteryCapacity = req.query.batteryCapacity;
+  const SoC = req.query.SoC;
   const connectorId = req.params.id;
-  const isValidConnectorId = await isValidId('Connector', connectorId);
-  if (isValidConnectorId) {
-    res.status(200).json(await getConnectorById(connectorId));
+  if (await isValidId('Connector', connectorId)) {
+    const connector = await getConnectorById(connectorId);
+    const connectorWattage = connector.wattage;
+    const ChargingTimeResponse = await estimateChargingTime(
+        batteryCapacity, SoC, connectorWattage);
+    connector['estimatedChargingTime'] = ChargingTimeResponse.estimatedChargingTime;
+    res.status(ChargingTimeResponse.status).json(connector);
   } else {
     res.status(404).json({message: `Invalid Connector`});
   }
