@@ -43,35 +43,48 @@ describe('Test with Database Connection', ()=>{
       expect(getResponse.body.length).equal(expectedIds.length);
     });
   });
-  const InvalidTestCase = {batteryCapacity: 120, SoC: 50, connectorPower: 240};
+
   describe('GET /Connector/:id', ()=> {
-    describe('with 404 status from estimate server', () => {
-      before(()=>{
-        nock('http://localhost:5050')
-            .get('/ChargingTime').query({
-              batteryCapacity: InvalidTestCase.batteryCapacity,
-              SoC: InvalidTestCase.SoC,
-              connectorPower: InvalidTestCase.connectorPower})
-            .reply(404);
+    const testCases = {
+      InvalidTestCase: {
+        batteryCapacity: 120,
+        SoC: 50,
+        connectorPower: 240,
+        estimateServerResponseStatus: 404,
+        getConnectorByIdResponseStatus: 206,
+        estimateServerResponseData: 'Not Available',
+      },
+      ValidTestCase: {
+        batteryCapacity: 120,
+        SoC: 50,
+        connectorPower: 240,
+        estimateServerResponseStatus: 200,
+        getConnectorByIdResponseStatus: 200,
+        estimateServerResponseData: 15,
+      },
+    };
+    Object.keys(testCases).forEach((testcase) => {
+      describe(`with ${testCases[testcase]
+          .estimateServerResponseStatus} status from estimate server`, () => {
+        before(()=>{
+          nock('http://localhost:5050').get('/ChargingTime')
+              .query({
+                batteryCapacity: testCases[testcase].batteryCapacity,
+                SoC: testCases[testcase].SoC,
+                connectorPower: testCases[testcase].connectorPower})
+              .reply(
+                  testCases[testcase].estimateServerResponseStatus,
+                  {estimatedChargingTime: testCases[testcase].estimateServerResponseData},
+              );
+        });
+        testGetConnectorById(
+            testCases[testcase].batteryCapacity,
+            testCases[testcase].SoC,
+            testCases[testcase].getConnectorByIdResponseStatus,
+            testCases[testcase].estimateServerResponseData,
+            isSubset);
       });
-      testGetConnectorById(InvalidTestCase.batteryCapacity,
-          InvalidTestCase.SoC,
-          206,
-          'Not Available',
-          isSubset);
     });
-  });
-  const ValidTestCase = {batteryCapacity: 120, SoC: 50, connectorPower: 240};
-  describe('With 200 status from estimate server', () => {
-    before(()=>{
-      nock('http://localhost:5050')
-          .get('/ChargingTime').query({
-            batteryCapacity: ValidTestCase.batteryCapacity,
-            SoC: ValidTestCase.SoC,
-            connectorPower: ValidTestCase.connectorPower})
-          .reply(200, {estimatedChargingTime: 15});
-    });
-    testGetConnectorById(ValidTestCase.batteryCapacity, ValidTestCase.SoC, 200, 15, isSubset);
   });
   describe('PATCH /Connector', () => {
     before(async () => {
