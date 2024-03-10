@@ -1,20 +1,19 @@
 const axios = require('axios');
-const estimateUrl = 'http://localhost:5050';
-// 'https://api.estimate-mock.com';
 
 const estimateChargingTime = async (batteryCapacity, SoC, connectorWattage) => {
   try {
+    const estimateServerURL = process.env.ESTIMATE_CHARGING_TIME_URL;
     const response = await axios
-        .get(`${estimateUrl}/ChargingTime`, {
+        .get(`${estimateServerURL}/ChargingTime`, {
           params: {batteryCapacity: batteryCapacity, SoC: SoC, connectorPower: connectorWattage}});
     return {
       status: response.status,
-      estimatedChargingTime: response.data.estimatedChargingTime,
+      estimatedChargingTimeInMin: response.data.estimatedChargingTimeInMin,
     };
   } catch (er) {
     return {
       status: 206,
-      estimatedChargingTime: 'Not Available',
+      estimatedChargingTimeInMin: 'Not Available',
     };
   }
 };

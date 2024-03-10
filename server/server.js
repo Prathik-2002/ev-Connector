@@ -2,14 +2,19 @@ const express = require('express');
 const connectorRoutes = require('../routes/Connector');
 const chargingPointRoutes = require('../routes/ChargingPoint');
 const chargingStationRoutes = require('../routes/ChargingStation');
-const {
-  connectToMongoDB,
-  disconnectMongoDB,
-} = require('../index');
+const {connectToMongoDB, disconnectMongoDB, dropMongoDatabase} = require('../index');
+
+let isDatabaseConnected = false;
+const setIsDatabaseConnected = (connection) => {
+  isDatabaseConnected = connection;
+};
 
 const app = express();
-const PORT = 3000;
-let isDatabaseConnected = false;
+const connectToDatabase = async () => {
+  const MONGO_DB_URI = process.env.DATABASE_URI;
+  connectToMongoDB(MONGO_DB_URI)
+      .then(() => setIsDatabaseConnected(true));
+};
 
 app.use(express.json());
 
@@ -25,19 +30,18 @@ app.use('/Connector', connectorRoutes);
 app.use('/ChargingPoint', chargingPointRoutes);
 app.use('/ChargingStation', chargingStationRoutes);
 
-const setIsDatabaseConnected = (connection) => {
-  isDatabaseConnected = connection;
-};
-
-const establishConnection = async (URI) => {
-  connectToMongoDB(URI)
-      .then(() => setIsDatabaseConnected(true));
-};
 const removeConnection = async () => {
   disconnectMongoDB().then(() => setIsDatabaseConnected(false));
 };
-const server = app.listen(PORT);
+const dropDatabase = async () => {
+  await dropMongoDatabase();
+};
+let server;
+const startServer = () => {
+  const PORT = process.env.PORT;
+  server = app.listen(PORT);
+};
 const closeServer = () => {
   server.close();
 };
-module.exports = {app, establishConnection, removeConnection, closeServer};
+module.exports = {app, startServer, connectToDatabase, removeConnection, closeServer, dropDatabase};

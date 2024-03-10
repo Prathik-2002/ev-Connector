@@ -76,7 +76,7 @@ const testGetConnectorById = (BCapacity, SoC, status, estimateData, isSubset) =>
         .get(`/Connector/${connector['_id']}?batteryCapacity=${BCapacity}&SoC=${SoC}`);
     expect(isSubset(getConnectorResponse.body, connector)).to.be.true;
     expect(getConnectorResponse.status).equal(status);
-    expect(getConnectorResponse.body.estimatedChargingTime).equal(estimateData);
+    expect(getConnectorResponse.body.estimatedChargingTimeInMin).equal(estimateData);
   });
   it('should return status 404 for invalid Id', async () => {
     const getConnectorResponse = await request(app).get('/Connector/65e6b0c65c719e67feeecdee');

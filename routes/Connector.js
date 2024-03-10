@@ -27,8 +27,11 @@ connectorRoutes.get('/:id', async (req, res) => {
     const connector = await getConnectorById(connectorId);
     const connectorWattage = connector.wattage;
     const ChargingTimeResponse = await estimateChargingTime(
-        batteryCapacity, SoC, connectorWattage);
-    connector['estimatedChargingTime'] = ChargingTimeResponse.estimatedChargingTime;
+        batteryCapacity,
+        SoC,
+        connectorWattage,
+    );
+    connector['estimatedChargingTimeInMin'] = ChargingTimeResponse.estimatedChargingTimeInMin;
     res.status(ChargingTimeResponse.status).json(connector);
   } else {
     res.status(404).json({message: `Invalid Connector`});
@@ -43,7 +46,6 @@ connectorRoutes.get('/', async (req, res) => {
   const Connectors = await getConnectorsByGeoLocation(latitude, longitude, type, distance);
   res.status(200).json(Connectors);
 });
-
 
 connectorRoutes.patch('/:id', async (req, res) => {
   const id = req.params.id;

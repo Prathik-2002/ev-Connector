@@ -1,15 +1,36 @@
 const {expect} = require('chai');
 const request = require('supertest');
-const mongoose = require('mongoose');
+const {Env} = require('./config');
 const {MongoMemoryServer} = require('mongodb-memory-server');
 const nock = require('nock');
-const {app, establishConnection, removeConnection, closeServer} = require('../server/server');
+
+
+let mongoServer;
+const getMongoMemoryServer = async () => {
+  return MongoMemoryServer.create().then((mongoMemoryServer) => {
+    mongoServer = mongoMemoryServer;
+    return mongoMemoryServer.getUri();
+  });
+};
+const {app,
+  startServer,
+  connectToDatabase,
+  removeConnection,
+  closeServer,
+  dropDatabase,
+} = require('../server/server');
+
+let connector;
+const mockEstimateURL = 'http://api-mock-esti44mate.com';
+Env.setPort(5050);
+Env.setEstimateServerUrl(mockEstimateURL);
+
 const {testCreateChargingStation} = require('./test-ChargingStation');
 const {testCreateChargingPoint} = require('./test-ChargingPoint');
 const {testCreateConnector, testGetConnectorById} = require('./test-Connector');
 const {populateHeavy, populateLight} = require('./populate');
-let mongoServer;
-let connector;
+
+
 const isSubset = (superObj, subObj) => {
   return Object.keys(subObj).every((ele) => {
     if (typeof subObj[ele] == 'object') {
@@ -20,10 +41,12 @@ const isSubset = (superObj, subObj) => {
 };
 
 describe('Test with Database Connection', ()=>{
-  before(async ()=>{
-    mongoServer = await MongoMemoryServer.create();
-    const URI = mongoServer.getUri();
-    establishConnection(URI);
+  before( async ()=>{
+    await getMongoMemoryServer().then((uri) => {
+      Env.setDatabaseURI(uri);
+    });
+    startServer();
+    await connectToDatabase();
   });
   describe('GET /Connector', async () => {
     it(`should return 3 connectors for lat: 9.9, lng: 89.9 and type "A2"`, async () => {
@@ -43,12 +66,11 @@ describe('Test with Database Connection', ()=>{
       expect(getResponse.body.length).equal(expectedIds.length);
     });
   });
-
   describe('GET /Connector/:id', ()=> {
     const testCases = {
       InvalidTestCase: {
         batteryCapacity: 120,
-        SoC: 50,
+        SoC: -50,
         connectorPower: 240,
         estimateServerResponseStatus: 404,
         getConnectorByIdResponseStatus: 206,
@@ -67,14 +89,14 @@ describe('Test with Database Connection', ()=>{
       describe(`with ${testCases[testcase]
           .estimateServerResponseStatus} status from estimate server`, () => {
         before(()=>{
-          nock('http://localhost:5050').get('/ChargingTime')
+          nock(mockEstimateURL).get('/ChargingTime')
               .query({
                 batteryCapacity: testCases[testcase].batteryCapacity,
                 SoC: testCases[testcase].SoC,
                 connectorPower: testCases[testcase].connectorPower})
               .reply(
                   testCases[testcase].estimateServerResponseStatus,
-                  {estimatedChargingTime: testCases[testcase].estimateServerResponseData},
+                  {estimatedChargingTimeInMin: testCases[testcase].estimateServerResponseData},
               );
         });
         testGetConnectorById(
@@ -113,7 +135,7 @@ describe('Test with Database Connection', ()=>{
   });
   describe('POST request', ()=>{
     afterEach(async () => {
-      mongoose.connection.db.dropDatabase();
+      await dropDatabase();
     });
     testCreateChargingPoint(isSubset);
     testCreateChargingStation(isSubset);

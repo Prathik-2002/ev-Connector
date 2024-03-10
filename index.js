@@ -1,5 +1,8 @@
 const {Connector, ChargingPoint, ChargingStation} = require('./Schema');
 const mongoose = require('mongoose');
+const dropMongoDatabase = async () => {
+  await mongoose.connection.db.dropDatabase();
+};
 const isValidId = async (modelname, id) => {
   const selectedModel = mongoose.model(modelname);
   const isExisting = await selectedModel.findById(id);
@@ -98,6 +101,7 @@ module.exports = {
   getConnectorById,
   isValidId,
   connectToMongoDB,
+  dropMongoDatabase,
   getConnectorsByGeoLocation,
   disconnectMongoDB,
 };
