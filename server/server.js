@@ -5,16 +5,7 @@ const chargingStationRoutes = require('../routes/ChargingStation');
 const {connectToMongoDB, disconnectMongoDB, dropMongoDatabase} = require('../index');
 
 let isDatabaseConnected = false;
-const setIsDatabaseConnected = (connection) => {
-  isDatabaseConnected = connection;
-};
-
 const app = express();
-const connectToDatabase = async () => {
-  const MONGO_DB_URI = process.env.DATABASE_URI;
-  connectToMongoDB(MONGO_DB_URI)
-      .then(() => setIsDatabaseConnected(true));
-};
 
 app.use(express.json());
 
@@ -30,6 +21,14 @@ app.use('/Connector', connectorRoutes);
 app.use('/ChargingPoint', chargingPointRoutes);
 app.use('/ChargingStation', chargingStationRoutes);
 
+const setIsDatabaseConnected = (connection) => {
+  isDatabaseConnected = connection;
+};
+const connectToDatabase = async () => {
+  const MONGO_DB_URI = process.env.DATABASE_URI;
+  connectToMongoDB(MONGO_DB_URI)
+      .then(() => setIsDatabaseConnected(true));
+};
 const removeConnection = async () => {
   disconnectMongoDB().then(() => setIsDatabaseConnected(false));
 };

@@ -4,7 +4,7 @@ const {estimateChargingTime} = require('../server/estimate');
 const {isValidId} = require('../index');
 const {
   createNewConnector,
-  getConnectorsByGeoLocation,
+  getConnectorsByGeoLocationAndType,
   updateConnector,
   getConnectorById,
 } = require('../index');
@@ -43,7 +43,7 @@ connectorRoutes.get('/', async (req, res) => {
   const longitude = req.query.lng;
   const distance = req.query.distance;
   const type = req.query.type;
-  const Connectors = await getConnectorsByGeoLocation(latitude, longitude, type, distance);
+  const Connectors = await getConnectorsByGeoLocationAndType(latitude, longitude, type, distance);
   res.status(200).json(Connectors);
 });
 

@@ -67,7 +67,7 @@ const findStationIdFromChargingPointId = async (chargingPointId) => {
   const station = await ChargingStation.findOne({chargingPoints: {$in: chargingPointId}});
   return station.id;
 };
-const getConnectorsByGeoLocation = async (lat, lng, type, distance = 10000) => {
+const getConnectorsByGeoLocationAndType = async (lat, lng, type, distance = 10000) => {
   const connectors = await Connector.find({
     'chargingStation.address.location': {
       $near: {
@@ -102,7 +102,7 @@ module.exports = {
   isValidId,
   connectToMongoDB,
   dropMongoDatabase,
-  getConnectorsByGeoLocation,
+  getConnectorsByGeoLocationAndType,
   disconnectMongoDB,
 };
 

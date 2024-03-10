@@ -19,17 +19,15 @@ const {app,
   closeServer,
   dropDatabase,
 } = require('../server/server');
-
-let connector;
-const mockEstimateURL = 'http://api-mock-esti44mate.com';
-Env.setPort(5050);
-Env.setEstimateServerUrl(mockEstimateURL);
-
 const {testCreateChargingStation} = require('./test-ChargingStation');
 const {testCreateChargingPoint} = require('./test-ChargingPoint');
 const {testCreateConnector, testGetConnectorById} = require('./test-Connector');
 const {populateHeavy, populateLight} = require('./populate');
 
+let connector;
+const mockEstimateURL = 'http://api-mock-esti44mate.com';
+Env.setPort(5050);
+Env.setEstimateServerUrl(mockEstimateURL);
 
 const isSubset = (superObj, subObj) => {
   return Object.keys(subObj).every((ele) => {
