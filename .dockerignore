@@ -1,0 +1,10 @@
+node_modules
+reports
+gates
+coverage
+test
+.*
+*.sh
+*.conf.json
+Dockerfile
+docker-compose.yml
